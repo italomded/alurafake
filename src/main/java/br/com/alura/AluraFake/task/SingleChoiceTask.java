@@ -17,7 +17,7 @@ public class SingleChoiceTask extends TaskWithOptions {
     }
 
     public SingleChoiceTask(String statement, Course course, Integer order, Set<Option> options) {
-        super(statement, course, order, Type.OPEN_TEXT, options);
+        super(statement, course, order, Type.SINGLE_CHOICE, options);
         long correctAlternativesCount = options.stream().filter(Option::getCorrect).count();
         Assert.isTrue(correctAlternativesCount == 1, "The task must have only one correct option");
     }
