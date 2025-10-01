@@ -193,4 +193,106 @@ public class TaskControllerTest {
 
         verify(taskRepository, times(1)).save(any());
     }
+
+    /// /
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_has_one_option_correct() throws Exception {
+        Set<NewOptionDto> options = new HashSet<>();
+        NewMultipleChoiceTaskDto taskDto = new NewMultipleChoiceTaskDto(options);
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What comes after 1?");
+
+        options.add(new NewOptionDto("Comes number 1", false));
+        options.add(new NewOptionDto("Comes number 2", false));
+        options.add(new NewOptionDto("Comes number 3", true));
+
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The task must have more than one correct option"));
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_has_no_wrong_options() throws Exception {
+        Set<NewOptionDto> options = new HashSet<>();
+        NewMultipleChoiceTaskDto taskDto = new NewMultipleChoiceTaskDto(options);
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What comes after 1?");
+
+        options.add(new NewOptionDto("Comes number 2 + 0", true));
+        options.add(new NewOptionDto("Comes number 2", true));
+        options.add(new NewOptionDto("Comes number 1 + 1", true));
+
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The task must have at least one wrong option"));
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_more_than_one_option_has_same_title() throws Exception {
+        Set<NewOptionDto> options = new HashSet<>();
+        NewMultipleChoiceTaskDto taskDto = new NewMultipleChoiceTaskDto(options);
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What comes after 1?");
+
+        options.add(new NewOptionDto("Comes number 1", false));
+        options.add(new NewOptionDto("Comes number 2", true));
+        options.add(new NewOptionDto("Comes number 2", true));
+
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The options cannot be equal to each other"));
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_more_than_one_option_are_equal_to_statement() throws Exception {
+        Set<NewOptionDto> options = new HashSet<>();
+        NewMultipleChoiceTaskDto taskDto = new NewMultipleChoiceTaskDto(options);
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What comes after 1?");
+
+        options.add(new NewOptionDto("Comes number 1", false));
+        options.add(new NewOptionDto("What comes after 1?", true));
+        options.add(new NewOptionDto("Comes number 2", true));
+
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The option cannot be the same as the task statement"));
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_created_when_single_choice_task_is_valid() throws Exception {
+        Set<NewOptionDto> options = new HashSet<>();
+        NewMultipleChoiceTaskDto taskDto = new NewMultipleChoiceTaskDto(options);
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What comes after 1?");
+
+        options.add(new NewOptionDto("Comes number 1", false));
+        options.add(new NewOptionDto("Comes number 2", true));
+        options.add(new NewOptionDto("Comes number 3", true));
+
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isCreated());
+
+        verify(taskRepository, times(1)).save(any());
+    }
 }

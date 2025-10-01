@@ -58,9 +58,22 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Transactional
     @PostMapping("/task/new/multiplechoice")
-    public ResponseEntity newMultipleChoice() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity newMultipleChoice(@RequestBody @Valid NewMultipleChoiceTaskDto newMultipleChoiceTaskDto) {
+        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newMultipleChoiceTaskDto.getCourseId());
+        courseTaskDomainService.validateUniqueStatementForCourse(course, newMultipleChoiceTaskDto.getStatement());
+        courseTaskDomainService.validateTaskOrderAndReorder(course, newMultipleChoiceTaskDto.getOrder());
+
+        MultipleChoiceTask task = new MultipleChoiceTask(
+                newMultipleChoiceTaskDto.getStatement(),
+                course,
+                newMultipleChoiceTaskDto.getOrder(),
+                newMultipleChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+        );
+
+        this.taskRepository.save(task);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
 }
