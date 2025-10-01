@@ -29,7 +29,7 @@ public class TaskController {
 
     @Transactional
     @PostMapping("/task/new/opentext")
-    public ResponseEntity newOpenTextExercise(@RequestBody @Valid NewOpenTextTaskDto newOpenTextTask) {
+    public ResponseEntity newOpenTextExercise(@RequestBody @Valid NewBaseTaskDto newOpenTextTask) {
         Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newOpenTextTask.getCourseId());
         courseTaskDomainService.validateUniqueStatementForCourse(course, newOpenTextTask.getStatement());
         courseTaskDomainService.validateTaskOrderAndReorder(course, newOpenTextTask.getOrder());
@@ -42,16 +42,16 @@ public class TaskController {
 
     @Transactional
     @PostMapping("/task/new/singlechoice")
-    public ResponseEntity newSingleChoice(@RequestBody @Valid NewChoiceTaskDto newChoiceTaskDto) {
-        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newChoiceTaskDto.getCourseId());
-        courseTaskDomainService.validateUniqueStatementForCourse(course, newChoiceTaskDto.getStatement());
-        courseTaskDomainService.validateTaskOrderAndReorder(course, newChoiceTaskDto.getOrder());
+    public ResponseEntity newSingleChoice(@RequestBody @Valid NewSingleChoiceTaskDto newSingleChoiceTaskDto) {
+        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newSingleChoiceTaskDto.getCourseId());
+        courseTaskDomainService.validateUniqueStatementForCourse(course, newSingleChoiceTaskDto.getStatement());
+        courseTaskDomainService.validateTaskOrderAndReorder(course, newSingleChoiceTaskDto.getOrder());
 
         SingleChoiceTask task = new SingleChoiceTask(
-                newChoiceTaskDto.getStatement(),
+                newSingleChoiceTaskDto.getStatement(),
                 course,
-                newChoiceTaskDto.getOrder(),
-                newChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+                newSingleChoiceTaskDto.getOrder(),
+                newSingleChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
         );
 
         this.taskRepository.save(task);

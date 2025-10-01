@@ -6,15 +6,15 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class NewChoiceTaskDto extends NewOpenTextTaskDto {
+public class NewSingleChoiceTaskDto extends NewBaseTaskDto {
     @NotNull @Valid
     @Size(min = 2, max = 5)
     Set<NewOptionDto> options;
 
-    public NewChoiceTaskDto() {
+    public NewSingleChoiceTaskDto() {
     }
 
-    public NewChoiceTaskDto(Set<NewOptionDto> options) {
+    public NewSingleChoiceTaskDto(Set<NewOptionDto> options) {
         super();
         this.options = options;
     }

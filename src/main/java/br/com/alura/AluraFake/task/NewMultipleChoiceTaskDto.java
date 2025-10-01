@@ -6,7 +6,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
-public class NewMultipleChoiceTaskDto extends NewOpenTextTaskDto {
+public class NewMultipleChoiceTaskDto extends NewBaseTaskDto {
     @NotNull @Valid
     @Size(min = 3, max = 5)
     Set<NewOptionDto> options;

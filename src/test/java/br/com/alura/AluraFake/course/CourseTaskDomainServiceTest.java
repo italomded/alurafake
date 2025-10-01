@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.course;
 
-import br.com.alura.AluraFake.task.NewOpenTextTaskDto;
+import br.com.alura.AluraFake.task.NewBaseTaskDto;
 import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.util.ErrorItemException;
@@ -28,7 +28,7 @@ public class CourseTaskDomainServiceTest {
 
     @Test
     void validateUniqueStatementForCourse__should_throw_exception_when_statement_already_exists() {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
 
@@ -45,7 +45,7 @@ public class CourseTaskDomainServiceTest {
 
     @Test
     void validateUniqueStatementForCourse__should_pass_if_statement_does_not_exist() {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
 
@@ -60,7 +60,7 @@ public class CourseTaskDomainServiceTest {
 
     @Test
     void getCourseIfCanReceiveTask__should_return_bad_request_when_course_not_in_building_status() {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setCourseId(1L);
 
         Course course = mock(Course.class);
@@ -76,7 +76,7 @@ public class CourseTaskDomainServiceTest {
 
     @Test
     void getCourseIfCanReceiveTask__should_pass_when_course_on_building_status() {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setCourseId(1L);
 
         Course course = mock(Course.class);

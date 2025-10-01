@@ -40,7 +40,7 @@ public class TaskControllerTest {
 
     @Test
     void newOpenTextTaskDto__should_return_bad_request_when_statement_already_registered() throws Exception {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
@@ -61,7 +61,7 @@ public class TaskControllerTest {
 
     @Test
     void newOpenTextTaskDto__should_return_bad_request_when_course_not_in_building_status() throws Exception {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
@@ -80,7 +80,7 @@ public class TaskControllerTest {
 
     @Test
     void newOpenTextTaskDto__should_return_bad_request_when_out_of_order() throws Exception {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setOrder(3);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
@@ -101,7 +101,7 @@ public class TaskControllerTest {
 
     @Test
     void newOpenTextTaskDto__should_return_created_when_new_open_text_task_is_valid() throws Exception {
-        NewOpenTextTaskDto taskDto = new NewOpenTextTaskDto();
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What is the JVM in Java?");
@@ -117,7 +117,7 @@ public class TaskControllerTest {
     @Test
     void newSingleChoiceTaskDto__should_return_bad_request_when_more_than_one_option_is_correct() throws Exception {
         Set<NewOptionDto> options = new HashSet<>();
-        NewChoiceTaskDto taskDto = new NewChoiceTaskDto(options);
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto(options);
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What comes after 1?");
@@ -137,7 +137,7 @@ public class TaskControllerTest {
     @Test
     void newSingleChoiceTaskDto__should_return_bad_request_when_more_than_one_option_has_same_title() throws Exception {
         Set<NewOptionDto> options = new HashSet<>();
-        NewChoiceTaskDto taskDto = new NewChoiceTaskDto(options);
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto(options);
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What comes after 1?");
@@ -157,7 +157,7 @@ public class TaskControllerTest {
     @Test
     void newSingleChoiceTaskDto__should_return_bad_request_when_one_option_are_equal_to_statement() throws Exception {
         Set<NewOptionDto> options = new HashSet<>();
-        NewChoiceTaskDto taskDto = new NewChoiceTaskDto(options);
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto(options);
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What comes after 1?");
@@ -177,7 +177,7 @@ public class TaskControllerTest {
     @Test
     void newSingleChoiceTaskDto__should_return_created_when_single_choice_task_is_valid() throws Exception {
         Set<NewOptionDto> options = new HashSet<>();
-        NewChoiceTaskDto taskDto = new NewChoiceTaskDto(options);
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto(options);
         taskDto.setOrder(1);
         taskDto.setCourseId(1L);
         taskDto.setStatement("What comes after 1?");
