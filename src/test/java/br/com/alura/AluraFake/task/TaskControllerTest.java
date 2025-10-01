@@ -39,6 +39,298 @@ public class TaskControllerTest {
     private TaskRepository taskRepository;
 
     @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_order_is_null() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("order"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_order_is_negative() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(-1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("order"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_statement_is_null() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_statement_is_blank() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("                             ");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_statement_has_less_than_4_characters() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("You");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_statement_has_more_than_255_characters() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("""
+                Text with more than 255 characters for the task statement
+                should return an error to the user informing that the size
+                must be between 4 characters and 255 characters in the base
+                registration form for the tasks of the AluraFake test project,
+                this test should return an error.
+                """);
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("statement"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_course_id_is_null() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("courseId"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newOpenTextTaskDto__should_return_bad_request_when_course_id_is_negative() throws Exception {
+        NewBaseTaskDto taskDto = new NewBaseTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(-1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/opentext")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("courseId"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_is_null() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_option_is_null() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto(null, false), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options[].option"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_is_blank() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("     ", false), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options[].option"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_option_is_correct_is_null() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("Test", null), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options[].isCorrect"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_has_less_than_4_characters() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("Tes", false), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options[].option"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_has_more_than_80_characters() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("Option with more than 80 characters should not be allowed to save in the task registry", false), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options[].option"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_is_has_less_than_2_elements() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newSingleChoiceTaskDto__should_return_bad_request_when_options_is_has_more_than_5_elements() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false)
+        ));
+        mockMvc.perform(post("/task/new/singlechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_options_is_has_less_than_3_elements() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(new NewOptionDto("Test", false), new NewOptionDto("Test", false)));
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_options_is_has_more_than_5_elements() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        taskDto.setOptions(Set.of(
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false),
+                new NewOptionDto("Test", false)
+        ));
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
+    void newMultipleChoiceTaskDto__should_return_bad_request_when_options_is_null() throws Exception {
+        NewSingleChoiceTaskDto taskDto = new NewSingleChoiceTaskDto();
+        taskDto.setOrder(1);
+        taskDto.setCourseId(1L);
+        taskDto.setStatement("What is the JVM in Java?");
+        mockMvc.perform(post("/task/new/multiplechoice")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(taskDto)))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$[0].field").value("options"))
+                .andExpect(jsonPath("$[0].message").isNotEmpty());
+    }
+
+    @Test
     void newOpenTextTaskDto__should_return_bad_request_when_statement_already_registered() throws Exception {
         NewBaseTaskDto taskDto = new NewBaseTaskDto();
         taskDto.setOrder(1);

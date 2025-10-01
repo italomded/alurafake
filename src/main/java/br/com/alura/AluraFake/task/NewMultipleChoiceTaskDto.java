@@ -9,7 +9,7 @@ import jakarta.validation.constraints.Size;
 public class NewMultipleChoiceTaskDto extends NewBaseTaskDto {
     @NotNull @Valid
     @Size(min = 3, max = 5)
-    Set<NewOptionDto> options;
+    private Set<NewOptionDto> options;
 
     public NewMultipleChoiceTaskDto() {
     }

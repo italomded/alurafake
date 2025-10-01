@@ -51,7 +51,7 @@ public class TaskController {
                 newSingleChoiceTaskDto.getStatement(),
                 course,
                 newSingleChoiceTaskDto.getOrder(),
-                newSingleChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+                newSingleChoiceTaskDto.getOptions().stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
         );
 
         this.taskRepository.save(task);
@@ -69,7 +69,7 @@ public class TaskController {
                 newMultipleChoiceTaskDto.getStatement(),
                 course,
                 newMultipleChoiceTaskDto.getOrder(),
-                newMultipleChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+                newMultipleChoiceTaskDto.getOptions().stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
         );
 
         this.taskRepository.save(task);
