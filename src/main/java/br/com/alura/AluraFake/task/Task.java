@@ -24,10 +24,6 @@ public abstract class Task {
     @Column
     private Integer taskOrder;
 
-    public Course getCourse() {
-        return course;
-    }
-
     @ManyToOne(optional = false)
     private Course course;
 
@@ -44,5 +40,13 @@ public abstract class Task {
 
     public Integer getTaskOrder() {
         return taskOrder;
+    }
+
+    public Course getCourse() {
+        return course;
+    }
+
+    public String getStatement() {
+        return statement;
     }
 }

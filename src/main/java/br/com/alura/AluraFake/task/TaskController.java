@@ -1,8 +1,9 @@
 package br.com.alura.AluraFake.task;
 
 import br.com.alura.AluraFake.course.Course;
-import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.CourseTaskDomainService;
+
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,14 +18,12 @@ import jakarta.validation.Valid;
 @RestController
 public class TaskController {
     private final TaskRepository taskRepository;
-    private final CourseRepository courseRepository;
 
     private final CourseTaskDomainService courseTaskDomainService;
 
     @Autowired
-    public TaskController(TaskRepository taskRepository, CourseRepository courseRepository, CourseTaskDomainService courseTaskDomainService) {
+    public TaskController(TaskRepository taskRepository, CourseTaskDomainService courseTaskDomainService) {
         this.taskRepository = taskRepository;
-        this.courseRepository = courseRepository;
         this.courseTaskDomainService = courseTaskDomainService;
     }
 
@@ -41,9 +40,22 @@ public class TaskController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Transactional
     @PostMapping("/task/new/singlechoice")
-    public ResponseEntity newSingleChoice() {
-        return ResponseEntity.ok().build();
+    public ResponseEntity newSingleChoice(@RequestBody @Valid NewChoiceTaskDto newChoiceTaskDto) {
+        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newChoiceTaskDto.getCourseId());
+        courseTaskDomainService.validateUniqueStatementForCourse(course, newChoiceTaskDto.getStatement());
+        courseTaskDomainService.validateTaskOrderAndReorder(course, newChoiceTaskDto.getOrder());
+
+        SingleChoiceTask task = new SingleChoiceTask(
+                newChoiceTaskDto.getStatement(),
+                course,
+                newChoiceTaskDto.getOrder(),
+                newChoiceTaskDto.options.stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+        );
+
+        this.taskRepository.save(task);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @PostMapping("/task/new/multiplechoice")
