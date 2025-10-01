@@ -1,10 +1,14 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.user.User;
-import jakarta.persistence.*;
-import org.springframework.util.Assert;
 
 import java.time.LocalDateTime;
+import java.util.List;
+
+import org.springframework.util.Assert;
+
+import jakarta.persistence.*;
 
 @Entity
 public class Course {
@@ -20,9 +24,12 @@ public class Course {
     @Enumerated(EnumType.STRING)
     private Status status;
     private LocalDateTime publishedAt;
+    @OneToMany(mappedBy = "course")
+    private List<Task> task;
 
     @Deprecated
-    public Course(){}
+    public Course() {
+    }
 
     public Course(String title, String description, User instructor) {
         Assert.isTrue(instructor.isInstructor(), "Usuario deve ser um instrutor");
@@ -63,4 +70,9 @@ public class Course {
     public LocalDateTime getPublishedAt() {
         return publishedAt;
     }
+
+    public boolean isOnBuilding() {
+        return Status.BUILDING.equals(this.status);
+    }
+
 }
