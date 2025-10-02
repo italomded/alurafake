@@ -363,7 +363,7 @@ public class TaskControllerTest {
         taskDTO.setStatement("What is the JVM in Java?");
 
         Course course = mock(Course.class);
-        doReturn(course).when(courseTaskDomainService).getCourseIfCanReceiveTask(eq(1L));
+        when(courseTaskDomainService.getCourseIfCanReceiveTask(eq(1L))).thenReturn(course);
         doThrow(new ErrorItemException("statement", "msg")).when(courseTaskDomainService).validateUniqueStatementForCourse(eq(course), eq(taskDTO.getStatement()));
 
         mockMvc.perform(post("/task/new/opentext")
@@ -405,7 +405,7 @@ public class TaskControllerTest {
         taskDTO.setStatement("What is the JVM in Java?");
 
         Course course = mock(Course.class);
-        doReturn(course).when(courseTaskDomainService).getCourseIfCanReceiveTask(eq(1L));
+        when(courseTaskDomainService.getCourseIfCanReceiveTask(eq(1L))).thenReturn(course);
         doThrow(new ErrorItemException("order", "msg")).when(courseTaskDomainService).validateTaskOrderAndReorder(eq(course), eq(3));
 
         mockMvc.perform(post("/task/new/opentext")

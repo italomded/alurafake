@@ -18,13 +18,11 @@ import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -60,48 +58,22 @@ class CourseControllerTest {
         SecurityContextHolder.clearContext();
     }
 
-    // @Test
-    // @WithMockUser(authorities = "INSTRUCTOR")
-    // void newCourseDTO__should_return_bad_request_when_email_is_invalid() throws Exception {
-    //     NewCourseDTO newCourseDTO = new NewCourseDTO();
-    //     newCourseDTO.setTitle("Java");
-    //     newCourseDTO.setDescription("Curso de Java");
-    //     newCourseDTO.setEmailInstructor("paulo@alura.com.br");
-    //
-    //     doReturn(Optional.empty()).when(userRepository)
-    //             .findByEmail(newCourseDTO.getEmailInstructor());
-    //
-    //     mockMvc.perform(post("/course/new")
-    //                     .contentType(MediaType.APPLICATION_JSON)
-    //                     .content(objectMapper.writeValueAsString(newCourseDTO)))
-    //             .andExpect(status().isBadRequest())
-    //             .andExpect(jsonPath("$.field").value("emailInstructor"))
-    //             .andExpect(jsonPath("$.message").isNotEmpty());
-    // }
-
     @Test
     @WithMockUser(authorities = "STUDENT")
-    // newCourseDTO__should_return_bad_request_when_email_is_no_instructor
     void newCourseDTO__should_return_forbidden_when_is_no_instructor() throws Exception {
         setupSecurity(Role.STUDENT);
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
         newCourseDTO.setTitle("Java");
         newCourseDTO.setDescription("Curso de Java");
-        // newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
         User user = mock(User.class);
-        doReturn(false).when(user).isInstructor();
-
-        // doReturn(Optional.of(user)).when(userRepository)
-        //         .findByEmail(newCourseDTO.getEmailInstructor());
+        when(user.isInstructor()).thenReturn(false);
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCourseDTO)))
                 .andExpect(status().isForbidden());
-        //        .andExpect(jsonPath("$.field").value("emailInstructor"))
-        //        .andExpect(jsonPath("$.message").isNotEmpty());
 
         clearSecurity();
     }
@@ -114,12 +86,9 @@ class CourseControllerTest {
         NewCourseDTO newCourseDTO = new NewCourseDTO();
         newCourseDTO.setTitle("Java");
         newCourseDTO.setDescription("Curso de Java");
-        // newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
         User user = mock(User.class);
-        doReturn(true).when(user).isInstructor();
-
-//        doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
+        when(user.isInstructor()).thenReturn(true);
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -160,9 +129,9 @@ class CourseControllerTest {
         when(user.isInstructor()).thenReturn(true);
         Course course = new Course("Test course", "Test description", user);
 
-        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
-        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
-        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        when(courseRepository.findById(anyLong())).thenReturn(Optional.of(course));
+        when(courseTaskDomainService.validateTaskOrderForCourse(eq(course))).thenReturn(true);
+        when(courseTaskDomainService.validateCourseContainsAllTaskTypes(eq(course))).thenReturn(true);
 
         mockMvc.perform(post("/course/" + 1 + "/publish")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -177,10 +146,12 @@ class CourseControllerTest {
     @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_tasks_are_out_of_order() throws Exception {
         Course course = mock(Course.class);
+
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
-        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
-        doReturn(false).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
-        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        when(courseRepository.findById(anyLong())).thenReturn(Optional.of(course));
+        when(courseTaskDomainService.validateTaskOrderForCourse(eq(course))).thenReturn(false);
+        when(courseTaskDomainService.validateCourseContainsAllTaskTypes(eq(course))).thenReturn(true);
+
         mockMvc.perform(post("/course/" + 1 + "/publish")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -192,10 +163,12 @@ class CourseControllerTest {
     @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_doesnt_contains_tasks_of_all_types() throws Exception {
         Course course = mock(Course.class);
+
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
-        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
-        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
-        doReturn(false).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        when(courseRepository.findById(anyLong())).thenReturn(Optional.of(course));
+        when(courseTaskDomainService.validateTaskOrderForCourse(eq(course))).thenReturn(true);
+        when(courseTaskDomainService.validateCourseContainsAllTaskTypes(eq(course))).thenReturn(false);
+
         mockMvc.perform(post("/course/" + 1 + "/publish")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -207,11 +180,13 @@ class CourseControllerTest {
     @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_course_status_is_not_building() throws Exception {
         Course course = mock(Course.class);
+
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
-        doReturn(false).when(course).isOnBuilding();
-        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
-        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
-        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        when(course.isOnBuilding()).thenReturn(false);
+        when(courseRepository.findById(anyLong())).thenReturn(Optional.of(course));
+        when(courseTaskDomainService.validateTaskOrderForCourse(eq(course))).thenReturn(true);
+        when(courseTaskDomainService.validateCourseContainsAllTaskTypes(eq(course))).thenReturn(true);
+
         mockMvc.perform(post("/course/" + 1 + "/publish")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
@@ -222,7 +197,7 @@ class CourseControllerTest {
     @Test
     @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_not_found_when_course_id_is_invalid() throws Exception {
-        doReturn(Optional.empty()).when(courseRepository).findById(anyLong());
+        when(courseRepository.findById(anyLong())).thenReturn(Optional.empty());
         mockMvc.perform(post("/course/" + 1 + "/publish")
                         .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());

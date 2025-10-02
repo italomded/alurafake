@@ -135,7 +135,7 @@ class UserControllerTest {
         User user = mock(User.class);
         when(courseRepository.retrieveReportByInstructorId(anyLong())).thenReturn(Set.of(java));
         when(courseRepository.countByInstructorId(anyLong())).thenReturn(1L);
-        doReturn(Optional.of(user)).when(userRepository).findById(anyLong());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(user.isInstructor()).thenReturn(true);
 
         mockMvc.perform(get("/instructor/" + 1 + "/courses")
@@ -155,7 +155,7 @@ class UserControllerTest {
         User user = mock(User.class);
         when(courseRepository.retrieveReportByInstructorId(anyLong())).thenReturn(Collections.emptySet());
         when(courseRepository.countByInstructorId(anyLong())).thenReturn(0L);
-        doReturn(Optional.of(user)).when(userRepository).findById(anyLong());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(user.isInstructor()).thenReturn(true);
         mockMvc.perform(get("/instructor/" + 1 + "/courses")
                         .contentType(MediaType.APPLICATION_JSON))
@@ -177,7 +177,7 @@ class UserControllerTest {
     @WithMockUser(authorities = "INSTRUCTOR")
     void listAllInstructorCourses__should_return_bad_request_user_not_instructor() throws Exception {
         User user = mock(User.class);
-        doReturn(Optional.of(user)).when(userRepository).findById(anyLong());
+        when(userRepository.findById(anyLong())).thenReturn(Optional.of(user));
         when(user.isInstructor()).thenReturn(false);
 
         mockMvc.perform(get("/instructor/" + 1 + "/courses")

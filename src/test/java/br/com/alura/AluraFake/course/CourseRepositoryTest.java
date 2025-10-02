@@ -29,13 +29,16 @@ class CourseRepositoryTest {
     void retrieveReportByInstructorId__should_return_only_right_instructor_courses() {
         User caio = em.persist(new User("Caio", "caio@alura.com.br", Role.INSTRUCTOR));
         User robert = em.persist(new User("Robert", "robert@alura.com.br", Role.INSTRUCTOR));
+
         Long oneIdCaioCourse = em.persist(new Course("Test course 1", "Course description", caio)).getId();
         Long twoIdCaioCourse = em.persist(new Course("Test course 2", "Course description", caio)).getId();
         Long threeIdCaioCourse = em.persist(new Course("Test course 3", "Course description", caio)).getId();
         Long fourtIdCaioCourse = em.persist(new Course("Test course 4", "Course description", caio)).getId();
         Long idRobertCourse = em.persist(new Course("Test course 5", "Course description", robert)).getId();
+
         Set<CourseReportDTO> courseReportDTO = this.courseRepository.retrieveReportByInstructorId(caio.getId());
         assertThat(courseReportDTO.size()).isEqualTo(4);
+
         List<Long> idsReturned = courseReportDTO.stream().map(CourseReportDTO::getId).toList();
         assertThat(idsReturned.containsAll(Set.of(oneIdCaioCourse, twoIdCaioCourse, threeIdCaioCourse, fourtIdCaioCourse))).isTrue();
         assertThat(idsReturned.contains(idRobertCourse)).isFalse();
