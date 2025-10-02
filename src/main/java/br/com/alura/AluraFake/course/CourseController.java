@@ -5,6 +5,7 @@ import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
+import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,6 +26,7 @@ public class CourseController {
         this.courseTaskDomainService = courseTaskDomainService;
     }
 
+    @Secured("INSTRUCTOR")
     @Transactional
     @PostMapping("/course/new")
     public ResponseEntity createCourse(@Valid @RequestBody NewCourseDTO newCourse) {
@@ -53,6 +55,8 @@ public class CourseController {
         return ResponseEntity.ok(courses);
     }
 
+    @Secured("INSTRUCTOR")
+    @Transactional
     @PostMapping("/course/{id}/publish")
     public ResponseEntity createCourse(@PathVariable("id") Long id) {
         Optional<Course> optionalCourse = courseRepository.findById(id);

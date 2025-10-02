@@ -3,15 +3,19 @@ package br.com.alura.AluraFake.user;
 import br.com.alura.AluraFake.course.CourseReportDTO;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
-import jakarta.validation.Valid;
-import org.springframework.http.*;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 @RestController
 public class UserController {
@@ -27,7 +31,7 @@ public class UserController {
     @Transactional
     @PostMapping("/user/new")
     public ResponseEntity newStudent(@RequestBody @Valid NewUserDTO newUser) {
-        if(userRepository.existsByEmail(newUser.getEmail())) {
+        if (userRepository.existsByEmail(newUser.getEmail())) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorItemDTO("email", "Email já cadastrado no sistema"));
         }
@@ -41,6 +45,7 @@ public class UserController {
         return userRepository.findAll().stream().map(UserListItemDTO::new).toList();
     }
 
+    @Secured("INSTRUCTOR")
     @GetMapping("/instructor/{id}/courses")
     public ResponseEntity listAllInstructorCourses(@PathVariable Long id) {
         Optional<User> optionalUser = userRepository.findById(id);
@@ -49,7 +54,7 @@ public class UserController {
         }
 
         User user = optionalUser.get();
-        if(!user.isInstructor()) {
+        if (!user.isInstructor()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorItemDTO("id", "User is not a instructor"));
         }
