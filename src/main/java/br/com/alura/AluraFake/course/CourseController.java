@@ -1,15 +1,20 @@
 package br.com.alura.AluraFake.course;
 
-import br.com.alura.AluraFake.user.*;
+import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.UserRepository;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
-import jakarta.validation.Valid;
+
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.*;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.*;
+import jakarta.validation.Valid;
 
 @RestController
 public class CourseController {
@@ -20,7 +25,7 @@ public class CourseController {
     private final CourseTaskDomainService courseTaskDomainService;
 
     @Autowired
-    public CourseController(CourseRepository courseRepository, UserRepository userRepository, CourseTaskDomainService courseTaskDomainService){
+    public CourseController(CourseRepository courseRepository, UserRepository userRepository, CourseTaskDomainService courseTaskDomainService) {
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
         this.courseTaskDomainService = courseTaskDomainService;
@@ -36,7 +41,7 @@ public class CourseController {
                 .findByEmail(newCourse.getEmailInstructor())
                 .filter(User::isInstructor);
 
-        if(possibleAuthor.isEmpty()) {
+        if (possibleAuthor.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorItemDTO("emailInstructor", "Usuário não é um instrutor"));
         }

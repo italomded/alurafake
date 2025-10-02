@@ -3,6 +3,8 @@ package br.com.alura.AluraFake.user;
 import br.com.alura.AluraFake.course.CourseReportImplDTO;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.Status;
+import br.com.alura.AluraFake.security.JwtService;
+import br.com.alura.AluraFake.security.SecurityConfig;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -13,7 +15,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,6 +32,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(UserController.class)
+@Import({SecurityConfig.class, JwtService.class})
 class UserControllerTest {
 
     @Autowired
@@ -43,6 +48,7 @@ class UserControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @WithMockUser
     void newUser__should_return_bad_request_when_email_is_blank() throws Exception {
         NewUserDTO newUserDTO = new NewUserDTO();
         newUserDTO.setEmail("");
@@ -58,6 +64,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void newUser__should_return_bad_request_when_email_is_invalid() throws Exception {
         NewUserDTO newUserDTO = new NewUserDTO();
         newUserDTO.setEmail("caio");
@@ -73,6 +80,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void newUser__should_return_bad_request_when_email_already_exists() throws Exception {
         NewUserDTO newUserDTO = new NewUserDTO();
         newUserDTO.setEmail("caio.bugorin@alura.com.br");
@@ -90,6 +98,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void newUser__should_return_created_when_user_request_is_valid() throws Exception {
         NewUserDTO newUserDTO = new NewUserDTO();
         newUserDTO.setEmail("caio.bugorin@alura.com.br");
@@ -105,6 +114,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser
     void listAllUsers__should_list_all_users() throws Exception {
         User user1 = new User("User 1", "user1@test.com", Role.STUDENT);
         User user2 = new User("User 2", "user2@test.com", Role.STUDENT);
@@ -118,6 +128,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void listAllInstructorCourses__should_list_all_instructor_courses() throws Exception {
         CourseReportImplDTO java = new CourseReportImplDTO(1L, "Java", Status.PUBLISHED, LocalDateTime.now(), 1L);
 
@@ -139,6 +150,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void listAllInstructorCourses__should_return_empty_list_when_has_no_courses() throws Exception {
         User user = mock(User.class);
         when(courseRepository.retrieveReportByInstructorId(anyLong())).thenReturn(Collections.emptySet());
@@ -153,6 +165,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void listAllInstructorCourses__should_return_not_found_if_user_not_reached() throws Exception {
         doReturn(Optional.empty()).when(userRepository).findById(anyLong());
         mockMvc.perform(get("/instructor/" + 1 + "/courses")
@@ -161,6 +174,7 @@ class UserControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void listAllInstructorCourses__should_return_bad_request_user_not_instructor() throws Exception {
         User user = mock(User.class);
         doReturn(Optional.of(user)).when(userRepository).findById(anyLong());

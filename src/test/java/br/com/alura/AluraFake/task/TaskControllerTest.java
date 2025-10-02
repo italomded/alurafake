@@ -3,6 +3,8 @@ package br.com.alura.AluraFake.task;
 import br.com.alura.AluraFake.course.Course;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.course.CourseTaskDomainService;
+import br.com.alura.AluraFake.security.JwtService;
+import br.com.alura.AluraFake.security.SecurityConfig;
 import br.com.alura.AluraFake.util.ErrorItemException;
 
 import java.util.HashSet;
@@ -11,7 +13,9 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,6 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(TaskController.class)
+@Import({SecurityConfig.class, JwtService.class})
 public class TaskControllerTest {
     @Autowired
     private MockMvc mockMvc;
@@ -39,6 +44,7 @@ public class TaskControllerTest {
     private TaskRepository taskRepository;
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_order_is_null() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setCourseId(1L);
@@ -52,6 +58,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_order_is_negative() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(-1);
@@ -66,6 +73,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_statement_is_null() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -79,6 +87,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_statement_is_blank() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -93,6 +102,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_statement_has_less_than_4_characters() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -107,6 +117,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_statement_has_more_than_255_characters() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -127,6 +138,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_course_id_is_null() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -140,6 +152,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_course_id_is_negative() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -154,6 +167,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_is_null() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -168,6 +182,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_option_is_null() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -183,6 +198,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_is_blank() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -198,6 +214,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_option_is_correct_is_null() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -213,6 +230,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_has_less_than_4_characters() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -228,6 +246,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_has_more_than_80_characters() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -243,6 +262,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_is_has_less_than_2_elements() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -258,6 +278,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_options_is_has_more_than_5_elements() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -280,6 +301,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_bad_request_when_options_is_has_less_than_3_elements() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -295,6 +317,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_bad_request_when_options_is_has_more_than_5_elements() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -317,6 +340,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_bad_request_when_options_is_null() throws Exception {
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO();
         taskDTO.setOrder(1);
@@ -331,6 +355,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_statement_already_registered() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -352,6 +377,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_course_not_in_building_status() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -371,6 +397,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_bad_request_when_out_of_order() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(3);
@@ -392,6 +419,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newOpenTextTaskDTO__should_return_created_when_new_open_text_task_is_valid() throws Exception {
         NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
         taskDTO.setOrder(1);
@@ -407,6 +435,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_more_than_one_option_is_correct() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO(options);
@@ -427,6 +456,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_more_than_one_option_has_same_title() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO(options);
@@ -447,6 +477,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_bad_request_when_one_option_are_equal_to_statement() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO(options);
@@ -467,6 +498,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newSingleChoiceTaskDTO__should_return_created_when_single_choice_task_is_valid() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewSingleChoiceTaskDTO taskDTO = new NewSingleChoiceTaskDTO(options);
@@ -487,6 +519,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_bad_request_when_has_one_option_correct() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewMultipleChoiceTaskDTO taskDTO = new NewMultipleChoiceTaskDTO(options);
@@ -507,6 +540,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_bad_request_when_has_no_wrong_options() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewMultipleChoiceTaskDTO taskDTO = new NewMultipleChoiceTaskDTO(options);
@@ -527,6 +561,7 @@ public class TaskControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newMultipleChoiceTaskDTO__should_return_created_when_multiple_choice_task_is_valid() throws Exception {
         Set<NewOptionDTO> options = new HashSet<>();
         NewMultipleChoiceTaskDTO taskDTO = new NewMultipleChoiceTaskDTO(options);

@@ -1,5 +1,7 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.security.JwtService;
+import br.com.alura.AluraFake.security.SecurityConfig;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 import br.com.alura.AluraFake.user.UserRepository;
@@ -10,7 +12,9 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,8 +29,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CourseController.class)
+@Import({SecurityConfig.class, JwtService.class})
 class CourseControllerTest {
-
     @Autowired
     private MockMvc mockMvc;
     @MockBean
@@ -39,6 +43,7 @@ class CourseControllerTest {
     private ObjectMapper objectMapper;
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newCourseDTO__should_return_bad_request_when_email_is_invalid() throws Exception {
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
@@ -59,6 +64,7 @@ class CourseControllerTest {
 
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newCourseDTO__should_return_bad_request_when_email_is_no_instructor() throws Exception {
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
@@ -81,6 +87,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void newCourseDTO__should_return_created_when_new_course_request_is_valid() throws Exception {
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
@@ -102,6 +109,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser
     void listAllCourses__should_list_all_courses() throws Exception {
         User paulo = new User("Paulo", "paulo@alua.com.br", Role.INSTRUCTOR);
 
@@ -123,6 +131,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_ok_and_publish_course() throws Exception {
         User user = mock(User.class);
         when(user.isInstructor()).thenReturn(true);
@@ -142,6 +151,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_tasks_are_out_of_order() throws Exception {
         Course course = mock(Course.class);
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
@@ -156,6 +166,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_doesnt_contains_tasks_of_all_types() throws Exception {
         Course course = mock(Course.class);
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
@@ -170,6 +181,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_bad_request_when_course_status_is_not_building() throws Exception {
         Course course = mock(Course.class);
         when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
@@ -185,6 +197,7 @@ class CourseControllerTest {
     }
 
     @Test
+    @WithMockUser(authorities = "INSTRUCTOR")
     void publishCourse__should_return_not_found_when_course_id_is_invalid() throws Exception {
         doReturn(Optional.empty()).when(courseRepository).findById(anyLong());
         mockMvc.perform(post("/course/" + 1 + "/publish")
