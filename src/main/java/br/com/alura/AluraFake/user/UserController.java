@@ -1,5 +1,7 @@
 package br.com.alura.AluraFake.user;
 
+import br.com.alura.AluraFake.course.CourseReportDto;
+import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
 import org.springframework.http.*;
@@ -7,14 +9,21 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+import org.hibernate.annotations.NotFound;
 
 @RestController
 public class UserController {
 
     private final UserRepository userRepository;
+    private final CourseRepository courseRepository;
 
-    public UserController(UserRepository userRepository) {
+    public UserController(UserRepository userRepository, CourseRepository courseRepository) {
         this.userRepository = userRepository;
+        this.courseRepository = courseRepository;
     }
 
     @Transactional
@@ -32,6 +41,27 @@ public class UserController {
     @GetMapping("/user/all")
     public List<UserListItemDTO> listAllUsers() {
         return userRepository.findAll().stream().map(UserListItemDTO::new).toList();
+    }
+
+    @GetMapping("/instructor/{id}/courses")
+    public ResponseEntity listAllInstructorCourses(@PathVariable Long id) {
+        Optional<User> optionalUser = userRepository.findById(id);
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        User user = optionalUser.get();
+        if(!user.isInstructor()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorItemDTO("id", "User is not a instructor"));
+        }
+
+        // Pageable era uma opção, mas optei por seguir estritamente o requisito.
+        Set<CourseReportDto> courseReportDtos = this.courseRepository.retrieveReportByInstructorId(user.getId());
+        long count = this.courseRepository.countByInstructorId(user.getId());
+        return ResponseEntity.ok(
+                Map.of("totalCourses", count, "report", courseReportDtos)
+        );
     }
 
 }
