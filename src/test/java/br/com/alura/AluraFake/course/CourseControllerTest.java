@@ -1,19 +1,28 @@
 package br.com.alura.AluraFake.course;
 
-import br.com.alura.AluraFake.user.*;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.Test;
+import br.com.alura.AluraFake.user.Role;
+import br.com.alura.AluraFake.user.User;
+import br.com.alura.AluraFake.user.UserRepository;
+
+import java.util.Arrays;
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
-import java.util.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.junit.jupiter.api.Test;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(CourseController.class)
 class CourseControllerTest {
@@ -111,6 +120,25 @@ class CourseControllerTest {
                 .andExpect(jsonPath("$[1].description").value("Curso de hibernate"))
                 .andExpect(jsonPath("$[2].title").value("Spring"))
                 .andExpect(jsonPath("$[2].description").value("Curso de spring"));
+    }
+
+    @Test
+    void publishCourse__should_return_ok_and_publish_course() throws Exception {
+        User user = mock(User.class);
+        when(user.isInstructor()).thenReturn(true);
+        Course course = new Course("Test course", "Test description", user);
+
+        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
+        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
+        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+
+        mockMvc.perform(post("/course/" + 1 + "/publish")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk());
+
+        verify(courseRepository, times(1)).save(eq(course));
+        assertThat(course.getStatus()).isEqualTo(Status.PUBLISHED);
+        assertThat(course.getPublishedAt()).isNotNull();
     }
 
     @Test
