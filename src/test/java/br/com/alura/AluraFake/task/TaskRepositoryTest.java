@@ -4,7 +4,7 @@ import br.com.alura.AluraFake.course.Course;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 
-import java.util.Optional;
+import java.util.*;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
@@ -70,5 +70,52 @@ class TaskRepositoryTest {
         Optional<Task> topTask = taskRepository.findTopByCourseIdOrderByTaskOrder_Desc(course.getId());
         assertThat(topTask.isPresent()).isTrue();
         assertThat(topTask.map(Task::getTaskOrder).orElse(null)).isEqualTo(4);
+    }
+
+    @Test
+    void findDistinctTaskTypesForCourse_Desc__should_return_three_types_of_task() {
+        User instructor = em.persist(new User("Caio", "caio@alura.com.br", Role.INSTRUCTOR));
+        Course course = em.persist(new Course("Test course", "Course description", instructor));
+        em.persist(new OpenTextTask("Task one", course, 1));
+        em.persist(new MultipleChoiceTask("Task two", course, 2, Set.of(
+                new Option("ABC", false),
+                new Option("ABCD", true),
+                new Option("ABCDE", true)
+        )));
+        em.persist(new SingleChoiceTask("Task three", course, 3, Set.of(
+                new Option("ABC", false),
+                new Option("ABCD", true)
+        )));
+        Set<Type> taskTypes = taskRepository.findDistinctTaskTypesForCourse(course.getId());
+        assertThat(taskTypes.containsAll(Arrays.stream(Type.values()).toList())).isTrue();
+    }
+
+    @Test
+    void findDistinctTaskTypesForCourse_Desc__should_return_two_types_of_task() {
+        User instructor = em.persist(new User("Caio", "caio@alura.com.br", Role.INSTRUCTOR));
+        Course course = em.persist(new Course("Test course", "Course description", instructor));
+        em.persist(new OpenTextTask("Task one", course, 1));
+        em.persist(new OpenTextTask("Task two", course, 2));
+        em.persist(new SingleChoiceTask("Task three", course, 3, Set.of(
+                new Option("ABC", false),
+                new Option("ABCD", true)
+        )));
+        Set<Type> taskTypes = taskRepository.findDistinctTaskTypesForCourse(course.getId());
+        assertThat(taskTypes.containsAll(Set.of(Type.OPEN_TEXT, Type.SINGLE_CHOICE))).isTrue();
+    }
+
+    @Test
+    void validateTaskSequenceByCourse__should_return_three_fields_with_count_min_and_max() {
+        User instructor = em.persist(new User("Caio", "caio@alura.com.br", Role.INSTRUCTOR));
+        Course course = em.persist(new Course("Test course", "Course description", instructor));
+        em.persist(new OpenTextTask("Task one", course, 1));
+        em.persist(new OpenTextTask("Task two", course, 2));
+        em.persist(new SingleChoiceTask("Task three", course, 3, Set.of(
+                new Option("ABC", false),
+                new Option("ABCD", true)
+        )));
+        List<Long[]> values = taskRepository.validateTaskSequenceByCourse(course.getId());
+        assertThat(values.isEmpty()).isFalse();
+        assertThat(values.getFirst().length).isEqualTo(3);
     }
 }

@@ -3,9 +3,11 @@ package br.com.alura.AluraFake.course;
 import br.com.alura.AluraFake.task.NewBaseTaskDto;
 import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.task.TaskRepository;
+import br.com.alura.AluraFake.task.Type;
 import br.com.alura.AluraFake.util.ErrorItemException;
 
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -120,4 +122,65 @@ public class CourseTaskDomainServiceTest {
         verify(taskRepository, times(1)).updateIncrementTaskOrderByCourseIdAndCursor(eq(1L), eq(1));
     }
 
+    @Test
+    void validateCourseContainsAllTaskTypes__should_return_false_when_doesnt_have_all_types() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(Set.of(Type.SINGLE_CHOICE, Type.MULTIPLE_CHOICE)).when(taskRepository).findDistinctTaskTypesForCourse(eq(1L));
+
+        boolean validated = service.validateCourseContainsAllTaskTypes(course);
+        assertFalse(validated);
+        verify(taskRepository, times(1)).findDistinctTaskTypesForCourse(eq(1L));
+    }
+
+    @Test
+    void validateCourseContainsAllTaskTypes__should_return_true_has_all_types() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(Arrays.stream(Type.values()).collect(Collectors.toSet())).when(taskRepository).findDistinctTaskTypesForCourse(eq(1L));
+
+        boolean validated = service.validateCourseContainsAllTaskTypes(course);
+        assertTrue(validated);
+        verify(taskRepository, times(1)).findDistinctTaskTypesForCourse(eq(1L));
+    }
+
+    @Test
+    void validateTaskOrderForCourse__should_return_false_when_is_not_in_order() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(List.<Long[]>of(new Long[]{5L, 1L, 4L})).when(taskRepository).validateTaskSequenceByCourse(eq(1L));
+        boolean validated = service.validateTaskOrderForCourse(course);
+        assertFalse(validated);
+        verify(taskRepository, times(1)).validateTaskSequenceByCourse(eq(1L));
+    }
+
+    @Test
+    void validateTaskOrderForCourse__should_return_false_when_has_no_elements() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(Collections.emptyList()).when(taskRepository).validateTaskSequenceByCourse(eq(1L));
+        boolean validated = service.validateTaskOrderForCourse(course);
+        assertFalse(validated);
+        verify(taskRepository, times(1)).validateTaskSequenceByCourse(eq(1L));
+    }
+
+    @Test
+    void validateTaskOrderForCourse__should_return_false_when_min_order_is_not_1() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(List.<Long[]>of(new Long[]{5L, 3L, 5L})).when(taskRepository).validateTaskSequenceByCourse(eq(1L));
+        boolean validated = service.validateTaskOrderForCourse(course);
+        assertFalse(validated);
+        verify(taskRepository, times(1)).validateTaskSequenceByCourse(eq(1L));
+    }
+
+    @Test
+    void validateTaskOrderForCourse__should_return_true_if_tasks_are_in_order() {
+        Course course = mock(Course.class);
+        doReturn(1L).when(course).getId();
+        doReturn(List.<Long[]>of(new Long[]{5L, 1L, 5L})).when(taskRepository).validateTaskSequenceByCourse(eq(1L));
+        boolean validated = service.validateTaskOrderForCourse(course);
+        assertTrue(validated);
+        verify(taskRepository, times(1)).validateTaskSequenceByCourse(eq(1L));
+    }
 }

@@ -51,9 +51,9 @@ public class Course {
         return title;
     }
 
-    public void setStatus(Status status) {
-        this.status = status;
-    }
+//    public void setStatus(Status status) {
+//        this.status = status;
+//    }
 
     public User getInstructor() {
         return instructor;
@@ -73,6 +73,15 @@ public class Course {
 
     public boolean isOnBuilding() {
         return Status.BUILDING.equals(this.status);
+    }
+
+    protected boolean publish(boolean areTheTasksInOrder, boolean hasAllTaskTypes) {
+        Assert.isTrue(areTheTasksInOrder, "The course can only be published if the tasks are in order");
+        Assert.isTrue(hasAllTaskTypes, "Must contain at least one task of each type");
+        Assert.isTrue(isOnBuilding(), "The course can only be published if the status is BUILDING");
+        status = Status.PUBLISHED;
+        publishedAt = LocalDateTime.now();
+        return true;
     }
 
 }

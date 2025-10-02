@@ -16,10 +16,13 @@ public class CourseController {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
 
+    private final CourseTaskDomainService courseTaskDomainService;
+
     @Autowired
-    public CourseController(CourseRepository courseRepository, UserRepository userRepository){
+    public CourseController(CourseRepository courseRepository, UserRepository userRepository, CourseTaskDomainService courseTaskDomainService){
         this.courseRepository = courseRepository;
         this.userRepository = userRepository;
+        this.courseTaskDomainService = courseTaskDomainService;
     }
 
     @Transactional
@@ -52,6 +55,17 @@ public class CourseController {
 
     @PostMapping("/course/{id}/publish")
     public ResponseEntity createCourse(@PathVariable("id") Long id) {
+        Optional<Course> optionalCourse = courseRepository.findById(id);
+        if (optionalCourse.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+
+        Course course = optionalCourse.get();
+        boolean isOrdered = courseTaskDomainService.validateTaskOrderForCourse(course);
+        boolean hasAllTaskTypes = courseTaskDomainService.validateCourseContainsAllTaskTypes(course);
+        course.publish(isOrdered, hasAllTaskTypes);
+        courseRepository.save(course);
+
         return ResponseEntity.ok().build();
     }
 

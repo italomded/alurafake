@@ -24,6 +24,8 @@ class CourseControllerTest {
     private UserRepository userRepository;
     @MockBean
     private CourseRepository courseRepository;
+    @MockBean
+    private CourseTaskDomainService courseTaskDomainService;
     @Autowired
     private ObjectMapper objectMapper;
 
@@ -109,6 +111,57 @@ class CourseControllerTest {
                 .andExpect(jsonPath("$[1].description").value("Curso de hibernate"))
                 .andExpect(jsonPath("$[2].title").value("Spring"))
                 .andExpect(jsonPath("$[2].description").value("Curso de spring"));
+    }
+
+    @Test
+    void publishCourse__should_return_bad_request_when_tasks_are_out_of_order() throws Exception {
+        Course course = mock(Course.class);
+        when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
+        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
+        doReturn(false).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
+        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        mockMvc.perform(post("/course/" + 1 + "/publish")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The course can only be published if the tasks are in order"));
+    }
+
+    @Test
+    void publishCourse__should_return_bad_request_when_doesnt_contains_tasks_of_all_types() throws Exception {
+        Course course = mock(Course.class);
+        when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
+        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
+        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
+        doReturn(false).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        mockMvc.perform(post("/course/" + 1 + "/publish")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("Must contain at least one task of each type"));
+    }
+
+    @Test
+    void publishCourse__should_return_bad_request_when_course_status_is_not_building() throws Exception {
+        Course course = mock(Course.class);
+        when(course.publish(anyBoolean(), anyBoolean())).thenCallRealMethod();
+        doReturn(false).when(course).isOnBuilding();
+        doReturn(Optional.of(course)).when(courseRepository).findById(anyLong());
+        doReturn(true).when(courseTaskDomainService).validateTaskOrderForCourse(eq(course));
+        doReturn(true).when(courseTaskDomainService).validateCourseContainsAllTaskTypes(eq(course));
+        mockMvc.perform(post("/course/" + 1 + "/publish")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").value("illegal argument"))
+                .andExpect(jsonPath("$.message").value("The course can only be published if the status is BUILDING"));
+    }
+
+    @Test
+    void publishCourse__should_return_not_found_when_course_id_is_invalid() throws Exception {
+        doReturn(Optional.empty()).when(courseRepository).findById(anyLong());
+        mockMvc.perform(post("/course/" + 1 + "/publish")
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
 }

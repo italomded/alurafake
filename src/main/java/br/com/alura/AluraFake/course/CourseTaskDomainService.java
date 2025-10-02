@@ -2,10 +2,17 @@ package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.task.TaskRepository;
+import br.com.alura.AluraFake.task.Type;
+import br.com.alura.AluraFake.util.ErrorItemDTO;
 import br.com.alura.AluraFake.util.ErrorItemException;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -63,5 +70,29 @@ public class CourseTaskDomainService {
         }
 
         return course;
+    }
+
+    public boolean validateTaskOrderForCourse(Course course) {
+        List<Long[]> resultList = taskRepository.validateTaskSequenceByCourse(course.getId());
+        if (resultList.isEmpty()) {
+            return false;
+        }
+
+        Long[] countMinAndMaxOrders = resultList.getFirst();
+        Long tasksQtd = countMinAndMaxOrders[0];
+        Long minTaskOrder = countMinAndMaxOrders[1];
+        Long maxTaskOrder = countMinAndMaxOrders[2];
+
+        if (minTaskOrder != 1) {
+            return false;
+        }
+
+        long sumValidation = maxTaskOrder - minTaskOrder + 1;
+        return sumValidation == tasksQtd;
+    }
+
+    public boolean validateCourseContainsAllTaskTypes(Course course) {
+        Set<Type> taskTypes = taskRepository.findDistinctTaskTypesForCourse(course.getId());
+        return taskTypes.containsAll(Arrays.stream(Type.values()).toList());
     }
 }
