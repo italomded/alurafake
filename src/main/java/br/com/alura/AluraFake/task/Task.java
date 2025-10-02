@@ -24,7 +24,7 @@ public abstract class Task {
     @Column
     private Integer taskOrder;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
     private Course course;
 
     @Deprecated

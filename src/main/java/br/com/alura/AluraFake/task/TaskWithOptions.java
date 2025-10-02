@@ -15,7 +15,7 @@ import jakarta.persistence.OneToMany;
 
 @MappedSuperclass
 public abstract class TaskWithOptions extends Task {
-    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.EAGER, mappedBy = "task")
+    @OneToMany(orphanRemoval = true, cascade = CascadeType.ALL, fetch = FetchType.LAZY, mappedBy = "task")
     private Set<Option> options;
 
     @Deprecated
