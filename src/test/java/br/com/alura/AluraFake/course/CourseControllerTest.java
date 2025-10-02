@@ -2,6 +2,7 @@ package br.com.alura.AluraFake.course;
 
 import br.com.alura.AluraFake.security.JwtService;
 import br.com.alura.AluraFake.security.SecurityConfig;
+import br.com.alura.AluraFake.security.UserAuthenticated;
 import br.com.alura.AluraFake.user.Role;
 import br.com.alura.AluraFake.user.User;
 import br.com.alura.AluraFake.user.UserRepository;
@@ -14,11 +15,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -42,63 +48,78 @@ class CourseControllerTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Test
-    @WithMockUser(authorities = "INSTRUCTOR")
-    void newCourseDTO__should_return_bad_request_when_email_is_invalid() throws Exception {
-
-        NewCourseDTO newCourseDTO = new NewCourseDTO();
-        newCourseDTO.setTitle("Java");
-        newCourseDTO.setDescription("Curso de Java");
-        newCourseDTO.setEmailInstructor("paulo@alura.com.br");
-
-        doReturn(Optional.empty()).when(userRepository)
-                .findByEmail(newCourseDTO.getEmailInstructor());
-
-        mockMvc.perform(post("/course/new")
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(newCourseDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.field").value("emailInstructor"))
-                .andExpect(jsonPath("$.message").isNotEmpty());
+    void setupSecurity(Role role) {
+        var details = new UserAuthenticated(new User("teste", "teste", role, "12345"));
+        Authentication auth = new UsernamePasswordAuthenticationToken(
+                details, details.getPassword(), details.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
+    void clearSecurity() {
+        SecurityContextHolder.clearContext();
+    }
+
+    // @Test
+    // @WithMockUser(authorities = "INSTRUCTOR")
+    // void newCourseDTO__should_return_bad_request_when_email_is_invalid() throws Exception {
+    //     NewCourseDTO newCourseDTO = new NewCourseDTO();
+    //     newCourseDTO.setTitle("Java");
+    //     newCourseDTO.setDescription("Curso de Java");
+    //     newCourseDTO.setEmailInstructor("paulo@alura.com.br");
+    //
+    //     doReturn(Optional.empty()).when(userRepository)
+    //             .findByEmail(newCourseDTO.getEmailInstructor());
+    //
+    //     mockMvc.perform(post("/course/new")
+    //                     .contentType(MediaType.APPLICATION_JSON)
+    //                     .content(objectMapper.writeValueAsString(newCourseDTO)))
+    //             .andExpect(status().isBadRequest())
+    //             .andExpect(jsonPath("$.field").value("emailInstructor"))
+    //             .andExpect(jsonPath("$.message").isNotEmpty());
+    // }
 
     @Test
-    @WithMockUser(authorities = "INSTRUCTOR")
-    void newCourseDTO__should_return_bad_request_when_email_is_no_instructor() throws Exception {
+    @WithMockUser(authorities = "STUDENT")
+    // newCourseDTO__should_return_bad_request_when_email_is_no_instructor
+    void newCourseDTO__should_return_forbidden_when_is_no_instructor() throws Exception {
+        setupSecurity(Role.STUDENT);
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
         newCourseDTO.setTitle("Java");
         newCourseDTO.setDescription("Curso de Java");
-        newCourseDTO.setEmailInstructor("paulo@alura.com.br");
+        // newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
         User user = mock(User.class);
         doReturn(false).when(user).isInstructor();
 
-        doReturn(Optional.of(user)).when(userRepository)
-                .findByEmail(newCourseDTO.getEmailInstructor());
+        // doReturn(Optional.of(user)).when(userRepository)
+        //         .findByEmail(newCourseDTO.getEmailInstructor());
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(newCourseDTO)))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.field").value("emailInstructor"))
-                .andExpect(jsonPath("$.message").isNotEmpty());
+                .andExpect(status().isForbidden());
+        //        .andExpect(jsonPath("$.field").value("emailInstructor"))
+        //        .andExpect(jsonPath("$.message").isNotEmpty());
+
+        clearSecurity();
     }
 
     @Test
     @WithMockUser(authorities = "INSTRUCTOR")
     void newCourseDTO__should_return_created_when_new_course_request_is_valid() throws Exception {
+        setupSecurity(Role.INSTRUCTOR);
 
         NewCourseDTO newCourseDTO = new NewCourseDTO();
         newCourseDTO.setTitle("Java");
         newCourseDTO.setDescription("Curso de Java");
-        newCourseDTO.setEmailInstructor("paulo@alura.com.br");
+        // newCourseDTO.setEmailInstructor("paulo@alura.com.br");
 
         User user = mock(User.class);
         doReturn(true).when(user).isInstructor();
 
-        doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
+//        doReturn(Optional.of(user)).when(userRepository).findByEmail(newCourseDTO.getEmailInstructor());
 
         mockMvc.perform(post("/course/new")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -106,6 +127,8 @@ class CourseControllerTest {
                 .andExpect(status().isCreated());
 
         verify(courseRepository, times(1)).save(any(Course.class));
+
+        clearSecurity();
     }
 
     @Test

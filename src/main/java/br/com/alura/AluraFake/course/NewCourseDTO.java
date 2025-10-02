@@ -14,10 +14,10 @@ public class NewCourseDTO {
     @NotBlank
     @Length(min = 4, max = 255)
     private String description;
-    @NotNull
-    @NotBlank
-    @Email
-    private String emailInstructor;
+    // @NotNull
+    // @NotBlank
+    // @Email
+    // private String emailInstructor;
 
     public NewCourseDTO() {}
 
@@ -37,11 +37,11 @@ public class NewCourseDTO {
         this.description = description;
     }
 
-    public String getEmailInstructor() {
-        return emailInstructor;
-    }
+    // public String getEmailInstructor() {
+    //     return emailInstructor;
+    // }
 
-    public void setEmailInstructor(String emailInstructor) {
-        this.emailInstructor = emailInstructor;
-    }
+    // public void setEmailInstructor(String emailInstructor) {
+    //     this.emailInstructor = emailInstructor;
+    // }
 }

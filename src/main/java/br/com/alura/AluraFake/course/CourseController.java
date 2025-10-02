@@ -1,5 +1,6 @@
 package br.com.alura.AluraFake.course;
 
+import br.com.alura.AluraFake.security.UserAuthenticated;
 import br.com.alura.AluraFake.user.User;
 import br.com.alura.AluraFake.user.UserRepository;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
@@ -11,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -35,18 +38,20 @@ public class CourseController {
     @Transactional
     @PostMapping("/course/new")
     public ResponseEntity createCourse(@Valid @RequestBody NewCourseDTO newCourse) {
+        // Caso implemente o bonus, pegue o instrutor logado
+        // Optional<User> possibleAuthor = userRepository
+        //         .findByEmail(newCourse.getEmailInstructor())
+        //         .filter(User::isInstructor);
+        //
+        // if (possibleAuthor.isEmpty()) {
+        //     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        //             .body(new ErrorItemDTO("emailInstructor", "Usuário não é um instrutor"));
+        // }
 
-        //Caso implemente o bonus, pegue o instrutor logado
-        Optional<User> possibleAuthor = userRepository
-                .findByEmail(newCourse.getEmailInstructor())
-                .filter(User::isInstructor);
+        UserAuthenticated userDetails = (UserAuthenticated) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user = userDetails.getUser();
 
-        if (possibleAuthor.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorItemDTO("emailInstructor", "Usuário não é um instrutor"));
-        }
-
-        Course course = new Course(newCourse.getTitle(), newCourse.getDescription(), possibleAuthor.get());
+        Course course = new Course(newCourse.getTitle(), newCourse.getDescription(), user);
 
         courseRepository.save(course);
         return ResponseEntity.status(HttpStatus.CREATED).build();
