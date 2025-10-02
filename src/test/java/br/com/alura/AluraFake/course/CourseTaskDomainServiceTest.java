@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.course;
 
-import br.com.alura.AluraFake.task.NewBaseTaskDto;
+import br.com.alura.AluraFake.task.NewBaseTaskDTO;
 import br.com.alura.AluraFake.task.Task;
 import br.com.alura.AluraFake.task.TaskRepository;
 import br.com.alura.AluraFake.task.Type;
@@ -30,64 +30,64 @@ public class CourseTaskDomainServiceTest {
 
     @Test
     void validateUniqueStatementForCourse__should_throw_exception_when_statement_already_exists() {
-        NewBaseTaskDto taskDto = new NewBaseTaskDto();
-        taskDto.setCourseId(1L);
-        taskDto.setStatement("What is the JVM in Java?");
+        NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
+        taskDTO.setCourseId(1L);
+        taskDTO.setStatement("What is the JVM in Java?");
 
-        doReturn(true).when(taskRepository).existsByCourseIdAndStatement(eq(taskDto.getCourseId()), eq(taskDto.getStatement()));
+        doReturn(true).when(taskRepository).existsByCourseIdAndStatement(eq(taskDTO.getCourseId()), eq(taskDTO.getStatement()));
         Course course = mock(Course.class);
-        doReturn(taskDto.getCourseId()).when(course).getId();
+        doReturn(taskDTO.getCourseId()).when(course).getId();
 
-        ErrorItemException errorItemException = assertThrows(ErrorItemException.class, () -> service.validateUniqueStatementForCourse(course, taskDto.getStatement()));
+        ErrorItemException errorItemException = assertThrows(ErrorItemException.class, () -> service.validateUniqueStatementForCourse(course, taskDTO.getStatement()));
 
-        verify(taskRepository, times(1)).existsByCourseIdAndStatement(eq(taskDto.getCourseId()), eq(taskDto.getStatement()));
+        verify(taskRepository, times(1)).existsByCourseIdAndStatement(eq(taskDTO.getCourseId()), eq(taskDTO.getStatement()));
         assertEquals("statement", errorItemException.getField());
         assertNotNull(errorItemException.getMessage());
     }
 
     @Test
     void validateUniqueStatementForCourse__should_pass_if_statement_does_not_exist() {
-        NewBaseTaskDto taskDto = new NewBaseTaskDto();
-        taskDto.setCourseId(1L);
-        taskDto.setStatement("What is the JVM in Java?");
+        NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
+        taskDTO.setCourseId(1L);
+        taskDTO.setStatement("What is the JVM in Java?");
 
-        doReturn(false).when(taskRepository).existsByCourseIdAndStatement(eq(taskDto.getCourseId()), eq(taskDto.getStatement()));
+        doReturn(false).when(taskRepository).existsByCourseIdAndStatement(eq(taskDTO.getCourseId()), eq(taskDTO.getStatement()));
         Course course = mock(Course.class);
-        doReturn(taskDto.getCourseId()).when(course).getId();
+        doReturn(taskDTO.getCourseId()).when(course).getId();
 
-        service.validateUniqueStatementForCourse(course, taskDto.getStatement());
+        service.validateUniqueStatementForCourse(course, taskDTO.getStatement());
 
-        verify(taskRepository, times(1)).existsByCourseIdAndStatement(eq(taskDto.getCourseId()), eq(taskDto.getStatement()));
+        verify(taskRepository, times(1)).existsByCourseIdAndStatement(eq(taskDTO.getCourseId()), eq(taskDTO.getStatement()));
     }
 
     @Test
     void getCourseIfCanReceiveTask__should_return_bad_request_when_course_not_in_building_status() {
-        NewBaseTaskDto taskDto = new NewBaseTaskDto();
-        taskDto.setCourseId(1L);
+        NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
+        taskDTO.setCourseId(1L);
 
         Course course = mock(Course.class);
         doReturn(false).when(course).isOnBuilding();
-        doReturn(Optional.of(course)).when(courseRepository).findById(taskDto.getCourseId());
+        doReturn(Optional.of(course)).when(courseRepository).findById(taskDTO.getCourseId());
 
-        ErrorItemException errorItemException = assertThrows(ErrorItemException.class, () -> service.getCourseIfCanReceiveTask(taskDto.getCourseId()));
+        ErrorItemException errorItemException = assertThrows(ErrorItemException.class, () -> service.getCourseIfCanReceiveTask(taskDTO.getCourseId()));
 
-        verify(courseRepository, times(1)).findById(eq(taskDto.getCourseId()));
+        verify(courseRepository, times(1)).findById(eq(taskDTO.getCourseId()));
         assertEquals("courseId", errorItemException.getField());
         assertNotNull(errorItemException.getMessage());
     }
 
     @Test
     void getCourseIfCanReceiveTask__should_pass_when_course_on_building_status() {
-        NewBaseTaskDto taskDto = new NewBaseTaskDto();
-        taskDto.setCourseId(1L);
+        NewBaseTaskDTO taskDTO = new NewBaseTaskDTO();
+        taskDTO.setCourseId(1L);
 
         Course course = mock(Course.class);
         doReturn(true).when(course).isOnBuilding();
-        doReturn(Optional.of(course)).when(courseRepository).findById(eq(taskDto.getCourseId()));
+        doReturn(Optional.of(course)).when(courseRepository).findById(eq(taskDTO.getCourseId()));
 
-        Course returnedCourse = service.getCourseIfCanReceiveTask(taskDto.getCourseId());
+        Course returnedCourse = service.getCourseIfCanReceiveTask(taskDTO.getCourseId());
 
-        verify(courseRepository, times(1)).findById(eq(taskDto.getCourseId()));
+        verify(courseRepository, times(1)).findById(eq(taskDTO.getCourseId()));
         assertNotNull(returnedCourse);
     }
 

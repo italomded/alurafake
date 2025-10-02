@@ -34,9 +34,9 @@ class CourseRepositoryTest {
         Long threeIdCaioCourse = em.persist(new Course("Test course 3", "Course description", caio)).getId();
         Long fourtIdCaioCourse = em.persist(new Course("Test course 4", "Course description", caio)).getId();
         Long idRobertCourse = em.persist(new Course("Test course 5", "Course description", robert)).getId();
-        Set<CourseReportDto> courseReportDtos = this.courseRepository.retrieveReportByInstructorId(caio.getId());
-        assertThat(courseReportDtos.size()).isEqualTo(4);
-        List<Long> idsReturned = courseReportDtos.stream().map(CourseReportDto::getId).toList();
+        Set<CourseReportDTO> courseReportDTO = this.courseRepository.retrieveReportByInstructorId(caio.getId());
+        assertThat(courseReportDTO.size()).isEqualTo(4);
+        List<Long> idsReturned = courseReportDTO.stream().map(CourseReportDTO::getId).toList();
         assertThat(idsReturned.containsAll(Set.of(oneIdCaioCourse, twoIdCaioCourse, threeIdCaioCourse, fourtIdCaioCourse))).isTrue();
         assertThat(idsReturned.contains(idRobertCourse)).isFalse();
     }

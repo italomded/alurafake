@@ -1,6 +1,6 @@
 package br.com.alura.AluraFake.user;
 
-import br.com.alura.AluraFake.course.CourseReportDto;
+import br.com.alura.AluraFake.course.CourseReportDTO;
 import br.com.alura.AluraFake.course.CourseRepository;
 import br.com.alura.AluraFake.util.ErrorItemDTO;
 import jakarta.validation.Valid;
@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import org.hibernate.annotations.NotFound;
 
 @RestController
 public class UserController {
@@ -57,10 +55,10 @@ public class UserController {
         }
 
         // Pageable era uma opção, mas optei por seguir estritamente o requisito.
-        Set<CourseReportDto> courseReportDtos = this.courseRepository.retrieveReportByInstructorId(user.getId());
+        Set<CourseReportDTO> courseReportDTO = this.courseRepository.retrieveReportByInstructorId(user.getId());
         long count = this.courseRepository.countByInstructorId(user.getId());
         return ResponseEntity.ok(
-                Map.of("totalCourses", count, "report", courseReportDtos)
+                Map.of("totalCourses", count, "report", courseReportDTO)
         );
     }
 

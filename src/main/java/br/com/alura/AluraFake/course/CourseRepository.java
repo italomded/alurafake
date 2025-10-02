@@ -16,7 +16,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
             GROUP BY
                 c.id, c.title, c.status, c.publishedAt
             """)
-    Set<CourseReportDto> retrieveReportByInstructorId(Long id);
+    Set<CourseReportDTO> retrieveReportByInstructorId(Long id);
 
     long countByInstructorId(Long instructorId);
 }

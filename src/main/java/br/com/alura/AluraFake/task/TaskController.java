@@ -29,7 +29,7 @@ public class TaskController {
 
     @Transactional
     @PostMapping("/task/new/opentext")
-    public ResponseEntity newOpenTextExercise(@RequestBody @Valid NewBaseTaskDto newOpenTextTask) {
+    public ResponseEntity newOpenTextExercise(@RequestBody @Valid NewBaseTaskDTO newOpenTextTask) {
         Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newOpenTextTask.getCourseId());
         courseTaskDomainService.validateUniqueStatementForCourse(course, newOpenTextTask.getStatement());
         courseTaskDomainService.validateTaskOrderAndReorder(course, newOpenTextTask.getOrder());
@@ -42,16 +42,16 @@ public class TaskController {
 
     @Transactional
     @PostMapping("/task/new/singlechoice")
-    public ResponseEntity newSingleChoice(@RequestBody @Valid NewSingleChoiceTaskDto newSingleChoiceTaskDto) {
-        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newSingleChoiceTaskDto.getCourseId());
-        courseTaskDomainService.validateUniqueStatementForCourse(course, newSingleChoiceTaskDto.getStatement());
-        courseTaskDomainService.validateTaskOrderAndReorder(course, newSingleChoiceTaskDto.getOrder());
+    public ResponseEntity newSingleChoice(@RequestBody @Valid NewSingleChoiceTaskDTO newSingleChoiceTaskDTO) {
+        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newSingleChoiceTaskDTO.getCourseId());
+        courseTaskDomainService.validateUniqueStatementForCourse(course, newSingleChoiceTaskDTO.getStatement());
+        courseTaskDomainService.validateTaskOrderAndReorder(course, newSingleChoiceTaskDTO.getOrder());
 
         SingleChoiceTask task = new SingleChoiceTask(
-                newSingleChoiceTaskDto.getStatement(),
+                newSingleChoiceTaskDTO.getStatement(),
                 course,
-                newSingleChoiceTaskDto.getOrder(),
-                newSingleChoiceTaskDto.getOptions().stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+                newSingleChoiceTaskDTO.getOrder(),
+                newSingleChoiceTaskDTO.getOptions().stream().map(NewOptionDTO::toModel).collect(Collectors.toSet())
         );
 
         this.taskRepository.save(task);
@@ -60,16 +60,16 @@ public class TaskController {
 
     @Transactional
     @PostMapping("/task/new/multiplechoice")
-    public ResponseEntity newMultipleChoice(@RequestBody @Valid NewMultipleChoiceTaskDto newMultipleChoiceTaskDto) {
-        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newMultipleChoiceTaskDto.getCourseId());
-        courseTaskDomainService.validateUniqueStatementForCourse(course, newMultipleChoiceTaskDto.getStatement());
-        courseTaskDomainService.validateTaskOrderAndReorder(course, newMultipleChoiceTaskDto.getOrder());
+    public ResponseEntity newMultipleChoice(@RequestBody @Valid NewMultipleChoiceTaskDTO newMultipleChoiceTaskDTO) {
+        Course course = courseTaskDomainService.getCourseIfCanReceiveTask(newMultipleChoiceTaskDTO.getCourseId());
+        courseTaskDomainService.validateUniqueStatementForCourse(course, newMultipleChoiceTaskDTO.getStatement());
+        courseTaskDomainService.validateTaskOrderAndReorder(course, newMultipleChoiceTaskDTO.getOrder());
 
         MultipleChoiceTask task = new MultipleChoiceTask(
-                newMultipleChoiceTaskDto.getStatement(),
+                newMultipleChoiceTaskDTO.getStatement(),
                 course,
-                newMultipleChoiceTaskDto.getOrder(),
-                newMultipleChoiceTaskDto.getOptions().stream().map(NewOptionDto::toModel).collect(Collectors.toSet())
+                newMultipleChoiceTaskDTO.getOrder(),
+                newMultipleChoiceTaskDTO.getOptions().stream().map(NewOptionDTO::toModel).collect(Collectors.toSet())
         );
 
         this.taskRepository.save(task);

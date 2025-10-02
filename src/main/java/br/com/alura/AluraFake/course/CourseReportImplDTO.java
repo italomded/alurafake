@@ -2,7 +2,7 @@ package br.com.alura.AluraFake.course;
 
 import java.time.LocalDateTime;
 
-public class CourseReportImplDTO implements CourseReportDto {
+public class CourseReportImplDTO implements CourseReportDTO {
     Long id;
     String title;
     Status status;

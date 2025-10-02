@@ -2,7 +2,7 @@ package br.com.alura.AluraFake.course;
 
 import java.time.LocalDateTime;
 
-public interface CourseReportDto {
+public interface CourseReportDTO {
     Long getId();
 
     String getTitle();

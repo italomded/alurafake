@@ -5,17 +5,17 @@ import org.hibernate.validator.constraints.Length;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class NewOptionDto {
+public class NewOptionDTO {
     @NotBlank
     @Length(min = 4, max = 80)
     String option;
     @NotNull
     Boolean isCorrect;
 
-    public NewOptionDto() {
+    public NewOptionDTO() {
     }
 
-    public NewOptionDto(String option, Boolean isCorrect) {
+    public NewOptionDTO(String option, Boolean isCorrect) {
         this.option = option;
         this.isCorrect = isCorrect;
     }
